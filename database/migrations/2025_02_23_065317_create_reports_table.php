@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
+            $table->boolean('is_approved')->default(false);
             $table->string('code')->unique();
             $table->foreignId('resident_id');
             $table->foreignId('report_category_id');
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->string('address');
             $table->softDeletes();
             $table->timestamps();
+
         });
     }
 

@@ -90,6 +90,9 @@
 
 @section('scripts')
     <script>
+        // ========================================
+        // EXISTING CODE (jangan dihapus)
+        // ========================================
         // Ambil base64 dari localStorage
         var imageBase64 = localStorage.getItem('image');
 
@@ -109,10 +112,10 @@
         // Fungsi untuk membuat objek file dan set ke input file
         function setFileInputFromBase64(base64) {
             // Mengubah base64 menjadi Blob
-            var blob = base64ToBlob(base64, 'image/jpeg'); // Ganti dengan tipe mime sesuai gambar Anda
+            var blob = base64ToBlob(base64, 'image/jpeg');
             var file = new File([blob], 'image.jpg', {
                 type: 'image/jpeg'
-            }); // Nama file dan tipe MIME
+            });
 
             // Set file ke input file
             var imageInput = document.getElementById('image');
@@ -127,6 +130,148 @@
 
         // Set nilai input file dan preview gambar
         setFileInputFromBase64(imageBase64);
-    </script>
 
+        // ========================================
+        // ✨ NEW CODE: AI AUTO-PREDICT KATEGORI
+        // ========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.getElementById('title');
+            const categorySelect = document.querySelector('select[name="report_category_id"]');
+
+            let typingTimer;
+            const doneTypingInterval = 1000; // 1 detik setelah user berhenti ngetik
+
+            // Event ketika user ngetik di field judul
+            titleInput.addEventListener('keyup', function() {
+                clearTimeout(typingTimer);
+                const title = this.value.trim();
+
+                // Cek panjang minimal 10 karakter
+                if (title.length >= 10) {
+                    typingTimer = setTimeout(function() {
+                        predictCategory(title);
+                    }, doneTypingInterval);
+                }
+            });
+
+            // Event ketika user tekan key down
+            titleInput.addEventListener('keydown', function() {
+                clearTimeout(typingTimer);
+            });
+
+            // Fungsi untuk panggil API predict
+            function predictCategory(title) {
+                // Tampilkan loading indicator (optional)
+                categorySelect.style.opacity = '0.5';
+
+                // Panggil API
+                fetch('{{ route("api.predict.category") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        title: title
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Kembalikan opacity normal
+                    categorySelect.style.opacity = '1';
+
+                    if (data.success) {
+                        // Auto-select kategori
+                        categorySelect.value = data.category_id;
+
+                        // Tampilkan notifikasi sukses (optional)
+                        showNotification('✅ Kategori otomatis terdeteksi: ' + data.category_name, 'success');
+
+                        console.log('AI Prediction:', data);
+                    } else {
+                        console.log('Prediction failed:', data.message);
+                    }
+                })
+                .catch(error => {
+                    // Kembalikan opacity normal
+                    categorySelect.style.opacity = '1';
+
+                    console.error('Error:', error);
+                    showNotification('⚠️ Gagal memprediksi kategori. Silakan pilih manual.', 'error');
+                });
+            }
+
+            // Fungsi untuk tampilkan notifikasi
+            function showNotification(message, type) {
+                // Cek apakah sudah ada notifikasi
+                let notification = document.getElementById('ai-notification');
+
+                if (!notification) {
+                    // Buat elemen notifikasi baru
+                    notification = document.createElement('div');
+                    notification.id = 'ai-notification';
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        color: white;
+                        font-weight: 500;
+                        z-index: 9999;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                        animation: slideIn 0.3s ease-out;
+                    `;
+                    document.body.appendChild(notification);
+                }
+
+                // Set warna berdasarkan type
+                if (type === 'success') {
+                    notification.style.backgroundColor = '#10b981';
+                } else if (type === 'error') {
+                    notification.style.backgroundColor = '#ef4444';
+                } else {
+                    notification.style.backgroundColor = '#3b82f6';
+                }
+
+                // Set pesan
+                notification.textContent = message;
+                notification.style.display = 'block';
+
+                // Auto hide setelah 3 detik
+                setTimeout(function() {
+                    notification.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(function() {
+                        notification.style.display = 'none';
+                    }, 300);
+                }, 3000);
+            }
+        });
+
+        // CSS Animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 @endsection

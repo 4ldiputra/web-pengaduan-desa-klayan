@@ -96,7 +96,7 @@
 
                     @if ($report->reportStatuses->last()->status === 'rejected')
                         <div class="badge-pending ">
-                            <p>Selesai</p>
+                            <p>Ditolak</p>
                         </div>
                     @endif
                 </div>

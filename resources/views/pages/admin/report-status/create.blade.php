@@ -3,7 +3,7 @@
 @section('title', 'Tambah Data Progress Laporan ')
 
 @section('content')
- <a href="{{route('admin.report-status.index')}}" class="btn btn-danger mb-3">Kembali</a>
+ <a href="{{route('admin.report.index')}}" class="btn btn-danger mb-3">Kembali</a>
 
 
                     <!-- DataTales Example -->

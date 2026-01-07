@@ -38,11 +38,12 @@
 
                                     <a href="{{route('admin.resident.show', $resident->id)}}" class="btn btn-info">Show</a>
 
-                                    <form action="{{route('admin.resident.destroy', $resident->id)}}" method="POST" class="d-inline">
+                                    <form id="delete-form-{{ $resident->id }}" action="{{ route('admin.resident.destroy', $resident->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ $resident->id }}')">Delete</button>
                                     </form>
+
                                 </td>
                             </tr>
                         @endforeach
@@ -54,3 +55,24 @@
     </div>
 
 @endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
+</script>

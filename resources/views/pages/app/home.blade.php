@@ -55,6 +55,12 @@
                                         Selesai
                                     </div>
                                 @endif
+                                @if ($report->reportStatuses->last()->status === 'rejected')
+                                    <div class="badge bg-danger fs-7 px-3 py-3 position-absolute bottom-0 start-0 m-2">
+                                        Ditolak
+                                    </div>
+                                @endif
+
                             </div>
 
                             <div class="d-flex justify-content-between align-items-end mb-2">
@@ -82,6 +88,9 @@
                     id="no-reports">
                     <div id="lottie"></div>
                     <h5 class="mt-3">Belum ada laporan</h5>
+                    <p class="text-secondary text-center mt-2" style="max-width: 250px;">
+                        Laporan Anda akan muncul setelah disetujui oleh admin.
+                    </p>
                 </div>
             @endforelse
 

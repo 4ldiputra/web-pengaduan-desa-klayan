@@ -43,8 +43,6 @@ class ResidentRepository implements ResidentRepositoryInterface
         $resident->user->update([
             'name' => $data['name'],
             'password' => isset($data['password']) ? bcrypt($data['password']) : $resident->user->password,
-
-
         ]);
 
         return $resident->update($data);

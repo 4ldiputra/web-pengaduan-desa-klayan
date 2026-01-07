@@ -13,7 +13,7 @@
         <div class="col-6">
             <div class="card profile-stats">
                 <div class="card-body">
-                    <h5 class="card-title">{{\App\Models\Report::count()}}</h5>
+                    <h5 class="card-title">{{ \App\Models\Report::count() }}</h5>
                     <p class="card-text">Total Laporan</p>
                 </div>
             </div>
@@ -31,23 +31,9 @@
 
     <div class="mt-4">
         <div class="list-group list-group-flush">
-            <a href="#"
-                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <i class="fa-solid fa-user"></i>
-                    <p class="fw-light">Pengaturan Akun</p>
-                </div>
-                <i class="fa-solid fa-chevron-right"></i>
-            </a>
-            <a href="#"
-                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <i class="fa-solid fa-lock"></i>
-                    <p class="fw-light"> Kata sandi</p>
-                </div>
-                <i class="fa-solid fa-chevron-right"></i>
-            </a>
-            <a href="#"
+
+
+            <a href="https://wa.me/6281223968645" target="_blank"
                 class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
                     <i class="fa-solid fa-question-circle"></i>
@@ -55,6 +41,7 @@
                 </div>
                 <i class="fa-solid fa-chevron-right"></i>
             </a>
+
         </div>
 
         <div class="mt-4">

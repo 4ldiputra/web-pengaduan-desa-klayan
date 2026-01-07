@@ -10,26 +10,39 @@ use App\Http\Controllers\Admin\ResidentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ReportStatusController;
 use App\Http\Controllers\Admin\ReportCategoryController;
+use App\Http\Controllers\Admin\ReportMapController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\ReportController as UserReportController;
+use App\Http\Controllers\User\ReportMapController as UserReportMapController;
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
+
+
+// untuk guest (root tetap peta laporan)
+Route::get('/', [UserReportMapController::class, 'index'])->name('map');
+
+// untuk user login (dashboard user)
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::get('/report/{code}', [UserReportController::class, 'show'])->name('report.show');
 
-Route::middleware(['auth'])->group(function(){
-    
-   Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-   Route::get('/take-report', [UserReportController::class, 'take'])->name('report.take');
-   Route::get('/preview', [UserReportController::class, 'preview'])->name('report.preview');
-   Route::get('/create-report', [UserReportController::class, 'create'])->name('report.create');
-   Route::post('/create-report', [UserReportController::class, 'store'])->name('report.store');
-   Route::get('/report-success', [UserReportController::class, 'success'])->name('report.success');
-   Route::get('/my-report', [UserReportController::class, 'myReport'])->name('report.myreport');
+Route::middleware(['auth'])->group(function () {
 
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::get('/take-report', [UserReportController::class, 'take'])->name('report.take');
+    Route::get('/preview', [UserReportController::class, 'preview'])->name('report.preview');
+    Route::post('/report/save-photo', [UserReportController::class, 'savePhoto'])->name('report.save.photo');
+    Route::get('/create-report', [UserReportController::class, 'create'])->name('report.create');
+    Route::post('/create-report', [UserReportController::class, 'store'])->name('report.store');
+    Route::get('/report-success', [UserReportController::class, 'success'])->name('report.success');
+    Route::get('/my-report', [UserReportController::class, 'myReport'])->name('report.myreport');
+
+    Route::post('/api/predict-category', [UserReportController::class, 'predictCategory'])
+        ->name('api.predict.category');
 });
 
 Route::get('/report', [UserReportController::class, 'index'])->name('report.index');
+
+Route::get('/user/report-map', [UserReportMapController::class, 'index'])->name('user.report.map');
 
 Route::get('/login', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'store'])->name('login.store');
@@ -39,7 +52,10 @@ Route::get('/register', [RegisterController::class, 'index'])->name('register');
 
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function(){
+
+
+
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('/resident', ResidentController::class);
@@ -48,8 +64,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     Route::resource('/report', ReportController::class);
 
+    // Tambahkan di dalam group admin
+    Route::get('/report/export/excel', [ReportController::class, 'exportExcel'])->name('report.export.excel');
+    Route::get('/report/export/pdf', [ReportController::class, 'exportPdf'])->name('report.export.pdf');
+
     route::get('/report-status/{reportId}/create', [ReportStatusController::class, 'create'])->name('report-status.create');
     Route::resource('/report-status', ReportStatusController::class)->except('create');
 
+    Route::get('/report-map', [ReportMapController::class, 'index'])->name('report.map');
 
+    Route::post('report/{id}/approve', [ReportController::class, 'approve'])->name('report.approve');
+    Route::post('report/{id}/unapprove', [ReportController::class, 'unapprove'])->name('report.unapprove');
 });

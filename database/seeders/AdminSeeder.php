@@ -17,6 +17,7 @@ class AdminSeeder extends Seeder
             'name' => 'Admin Lapor Pak',
             'email'=> 'admin@laporpak.com',
             'password' => bcrypt('password')
+            
         ])->assignRole('admin');
     }
 }

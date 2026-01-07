@@ -24,28 +24,31 @@ class LoginController extends Controller
     }
 
 
-        public function store(StoreLoginRequest $request) {
-            $credentials = $request->validated();
+       public function store(StoreLoginRequest $request) {
+    $credentials = $request->validated();
 
-            if($this->authRepository->login($credentials)){
-               if(Auth::user()->hasRole('admin')){
-                return redirect()->route('admin.dashboard');
-               }
-            }
-
-            return redirect()->route('home');
-
-            return redirect()-> route('login')->withErrors([
-                'email' => 'Email atau password salah',
-
-            ]);
+    if($this->authRepository->login($credentials)) {
+        // Kalau berhasil login
+        if(Auth::user()->hasRole('admin')) {
+            return redirect()->route('admin.dashboard');
         }
+
+        // Kalau bukan admin, arahkan ke home
+        return redirect()->route('home');
+    }
+
+    // Kalau gagal login, balikin ke login page + error
+    return redirect()->route('login')->withErrors([
+        'email' => 'Email atau password salah',
+    ]);
+}
+
 
         public function logout()
         {
             $this->authRepository->logout();
 
-            return redirect()->route('login');
+            return redirect()->route('user.report.map');
         }
 
 }
