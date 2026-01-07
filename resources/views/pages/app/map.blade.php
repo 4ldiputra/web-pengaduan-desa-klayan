@@ -116,8 +116,13 @@
                 // Inisialisasi map (center akan di-set ulang setelah polygon dibuat)
                 var map = L.map('map').setView([-6.68478, 108.54841], 14);
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
+                // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                //     maxZoom: 19,
+                // }).addTo(map);
+
+                L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
+                    attribution: '© Google Maps',
+                    maxZoom: 20,
                 }).addTo(map);
 
                 // Polygon boundary untuk Desa Klayan berdasarkan data topografi resmi
@@ -186,8 +191,8 @@
                                 <p><strong>Deskripsi:</strong> ${report.description}</p>
                                 <p><strong>Status:</strong> <span class="${badgeClass}">${latestStatus}</span></p>
                                 ${report.image ? `<img src="/storage/${report.image}" alt="Foto Laporan"
-                                                     style="width:100%;max-height:200px;object-fit:cover;"
-                                                     class="mt-2 rounded">` : ''}
+                                                             style="width:100%;max-height:200px;object-fit:cover;"
+                                                             class="mt-2 rounded">` : ''}
                             </div>
                         `;
 
@@ -225,6 +230,10 @@
                             label: "Selesai",
                             color: "green"
                         }, // Completed
+                        {
+                            label: "Ditolak",
+                            color: "red"
+                        }, // Rejected
                     ];
 
                     div.innerHTML = "<h6 class='mb-2'>Keterangan</h6>";

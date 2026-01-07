@@ -258,7 +258,7 @@
                     }
                 ];
 
-                div.innerHTML = '<h6 style="margin: 0 0 8px;">Status</h6>';
+                div.innerHTML = '<h6 style="margin: 0 0 8px;">Keterangan</h6>';
                 statuses.forEach(s => {
                     div.innerHTML += `
                         <div style="margin-bottom: 4px;">
