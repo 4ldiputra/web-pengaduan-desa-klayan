@@ -18,7 +18,7 @@ services:
       - storage-data:/var/www/html/storage/app
       - logs-data:/var/www/html/storage/logs
     depends_on:
-      db:
+      mysql:
         condition: service_healthy
     networks:
       - desaklayan-network
@@ -29,7 +29,7 @@ services:
       retries: 3
       start_period: 40s
 
-  db:
+  mysql:
     image: mysql:8.0
     container_name: web-pengaduan-desa-klayan-db
     restart: unless-stopped
