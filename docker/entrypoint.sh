@@ -15,6 +15,9 @@ if [ ! -f /var/www/html/.env ]; then
     exit 1
 fi
 
+# Restrict .env permissions so secrets aren't exposed via accidental reads
+chmod 600 /var/www/html/.env || true
+
 # Check if APP_KEY is set
 if ! grep -q "^APP_KEY=base64:" /var/www/html/.env; then
     echo "ERROR: APP_KEY not set!"
@@ -47,7 +50,7 @@ php -r "require '/var/www/html/vendor/autoload.php';" 2>&1 || {
     echo "ERROR: Autoloader failed"
     exit 1
 }
-grep "^APP_KEY=" /var/www/html/.env || {
+grep -q "^APP_KEY=" /var/www/html/.env || {
     echo "ERROR: APP_KEY not found or empty in .env"
     exit 1
 }
