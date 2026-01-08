@@ -5,7 +5,7 @@
 @section('content')
     <div class="d-flex flex-column justify-content-center align-items-center">
         <video autoplay="true" id="video-webcam" style="max-width: 100%; max-height: 400px; border: 2px solid #ddd;">
-            Browser tidak mendukung.
+            Browser tidak mendukung. silahkan upgrade ke versi terbaru.
         </video>
 
         <div class="mt-3">
