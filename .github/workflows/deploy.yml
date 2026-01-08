@@ -1,0 +1,75 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Configure SSH for VPS
+        run: |
+          cat > ~/.ssh/config << 'EOF'
+          Host vps
+            HostName ${{ secrets.VPS_HOST }}
+            User ${{ secrets.VPS_USERNAME }}
+            Port 2222
+            IdentityFile ~/.ssh/deploy_key
+            StrictHostKeyChecking no
+            ConnectTimeout 10
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Deploy to VPS via ssh
+        env:
+          ENV: ${{ secrets.ENV }}
+          ENV_DB: ${{ secrets.ENV_DB }}
+        run: |
+          # Transfer secrets to remote without embedding them in the heredoc
+          printf '%s' "$ENV" | ssh vps 'cat > /srv/web-pengaduan-desa-klayan/.env'
+          printf '%s' "$ENV_DB" | ssh vps 'cat > /srv/web-pengaduan-desa-klayan/.env.db'
+
+          # Run deployment commands on remote; use docker-compose.production.yml consistently
+          ssh vps 'bash -s' <<'REMOTE_EOF'
+          set -euo pipefail
+          cd /srv/web-pengaduan-desa-klayan
+
+          # Pull latest code
+          git pull origin main
+
+          # Use production compose file for all commands
+          export COMPOSE_FILE=docker-compose.production.yml
+
+          # Build and restart containers
+          docker compose -f "$COMPOSE_FILE" down || true
+          docker compose -f "$COMPOSE_FILE" build --no-cache
+          RUN_MIGRATIONS=false docker compose -f "$COMPOSE_FILE" up -d
+
+          # Wait for containers to be healthy
+          echo "Waiting for containers..."
+          sleep 15
+
+          # Put app in maintenance mode
+          docker compose -f "$COMPOSE_FILE" exec -T app php artisan down --message="Deploy in progress" --retry=60 || true
+
+          # Run migrations
+          docker compose -f "$COMPOSE_FILE" exec -T app php artisan migrate --force
+
+          # Clear and cache
+          docker compose -f "$COMPOSE_FILE" exec -T app php artisan route:cache
+          docker compose -f "$COMPOSE_FILE" exec -T app php artisan view:cache
+
+          # Bring app back online
+          docker compose -f "$COMPOSE_FILE" exec -T app php artisan up
+
+          echo "Deployment completed successfully!"
+          REMOTE_EOF
