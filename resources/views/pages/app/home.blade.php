@@ -7,8 +7,11 @@
     <h6 class="greeting">Hi, {{ Auth::user()->name }} 👋</h6>
     <h4 class="home-headline">Laporkan masalahmu dan kami segera atasi itu</h4>
 
-    <div class="d-flex align-items-center justify-content-between gap-4 py-3 overflow-auto" id="category"
-        style="white-space: nowrap;">
+    {{-- <div class="d-flex align-items-center justify-content-between gap-4 py-3 overflow-auto" id="category"
+        style="white-space: nowrap;"> --}}
+
+    <div class="d-flex align-items-start gap-3 py-3 overflow-x-auto"
+        style="scroll-behavior: smooth; padding: 12px 0; -webkit-overflow-scrolling: touch;" id="category">
 
         @foreach ($categories as $category)
             <a href="{{ route('report.index', ['category' => $category->name]) }}" class="category d-inline-block">
