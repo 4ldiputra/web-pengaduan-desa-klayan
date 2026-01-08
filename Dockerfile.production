@@ -1,0 +1,74 @@
+FROM node:20-alpine AS node-builder
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY vite.config.js ./
+COPY resources ./resources
+
+RUN npm run build
+
+FROM php:8.2-fpm-alpine
+
+RUN apk add --no-cache \
+    supervisor \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    libwebp-dev \
+    freetype-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    mysql-client \
+    && rm -rf /var/cache/apk/*
+
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) \
+    pdo \
+    pdo_mysql \
+    mysqli \
+    gd \
+    zip \
+    opcache \
+    bcmath
+
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+WORKDIR /var/www/html
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --no-progress --optimize-autoloader --no-scripts
+
+COPY . .
+COPY --from=node-builder /app/public/build ./public/build
+
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
+
+COPY docker/supervisor/supervisord.conf /etc/supervisord.conf
+
+RUN mkdir -p /var/log/supervisor
+
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY docker/php/fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf
+
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+EXPOSE 7000
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+    CMD pgrep -x php-fpm || exit 1
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
