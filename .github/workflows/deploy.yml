@@ -64,6 +64,9 @@ jobs:
           # Run migrations
           docker compose -f "$COMPOSE_FILE" exec -T app php artisan migrate --force
 
+          # Create storage link
+          docker compose -f "$COMPOSE_FILE" exec -T app php artisan storage:link
+
           # Clear and cache
           docker compose -f "$COMPOSE_FILE" exec -T app php artisan route:cache
           docker compose -f "$COMPOSE_FILE" exec -T app php artisan view:cache
