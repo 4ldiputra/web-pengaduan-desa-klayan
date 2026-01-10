@@ -44,6 +44,8 @@ jobs:
           cd /srv/web-pengaduan-desa-klayan
 
           # Pull latest code
+          git reset --hard
+          git clean -fd
           git pull origin main
 
           # Use production compose file for all commands
