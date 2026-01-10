@@ -13,6 +13,8 @@ services:
     environment:
       - APP_ENV=production
     volumes:
+      - ./.env:/var/www/html/.env:ro
+      - ./.env.db:/var/www/html/.env.db:ro
       - vendor-data:/var/www/html/vendor
       - storage-data:/var/www/html/storage/app
       - logs-data:/var/www/html/storage/logs
