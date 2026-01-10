@@ -20,7 +20,9 @@ class ComplaintClassifier
     private function trainModel()
     {
         // Path ke file training data
-        $csvPath = storage_path('app/training_data_kategori.csv');
+        // $csvPath = storage_path('app/training_data_kategori.csv');
+
+        $csvPath = resource_path('data/training_data_kategori.csv');
 
         // Cek file ada atau tidak
         if (!file_exists($csvPath)) {
