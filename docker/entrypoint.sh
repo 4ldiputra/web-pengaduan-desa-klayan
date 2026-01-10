@@ -72,11 +72,13 @@ php artisan cache:clear || true
 php artisan route:cache
 php artisan view:cache
 
-# Create storage link if it doesn't exist
-if [ ! -L /var/www/html/public/storage ]; then
-    echo "Storage link doesn't exist. Creating..."
-    php artisan storage:link
-fi
+# # Create storage link if it doesn't exist
+# if [ ! -L /var/www/html/public/storage ]; then
+#     echo "Storage link doesn't exist. Creating..."
+#     php artisan storage:link
+# fi
+
+php artisan storage:link
 
 # Set permissions
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache

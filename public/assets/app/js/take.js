@@ -5,6 +5,8 @@ var currentStream = null;
 var isFrontCamera = true;
 var cameraDevices = [];
 
+// Mulai kamera dengan kamera depan atau belakang
+
 async function startCamera() {
     if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
