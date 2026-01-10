@@ -58,7 +58,29 @@ jobs:
 
           # Wait for containers to be healthy
           echo "Waiting for containers..."
-          sleep 15
+          APP_ID=""
+          ATTEMPTS=0
+          MAX_ATTEMPTS=30
+          until [ "$ATTEMPTS" -ge "$MAX_ATTEMPTS" ]; do
+            APP_ID=$(docker compose -f "$COMPOSE_FILE" ps -q app || true)
+            if [ -n "$APP_ID" ]; then
+              STATUS=$(docker inspect -f '{{.State.Status}}' "$APP_ID" 2>/dev/null || true)
+              HEALTH=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$APP_ID" 2>/dev/null || true)
+              echo "App container status=$STATUS health=$HEALTH (attempt $ATTEMPTS/$MAX_ATTEMPTS)"
+              if [ "$STATUS" = "running" ] && [ "$HEALTH" = "healthy" ]; then
+                echo "App is running and healthy"
+                break
+              fi
+            else
+              echo "App container not yet created (attempt $ATTEMPTS/$MAX_ATTEMPTS)"
+            fi
+            ATTEMPTS=$((ATTEMPTS+1))
+            sleep 5
+          done
+          if [ "$ATTEMPTS" -ge "$MAX_ATTEMPTS" ]; then
+            echo "ERROR: App container did not become healthy after $MAX_ATTEMPTS attempts."
+            exit 1
+          fi
 
           # Put app in maintenance mode
           docker compose -f "$COMPOSE_FILE" exec -T app php artisan down --message="Deploy in progress" --retry=60 || true
