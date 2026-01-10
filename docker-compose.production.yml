@@ -16,19 +16,13 @@ services:
       - ./.env:/var/www/html/.env:ro
       - ./.env.db:/var/www/html/.env.db:ro
       - vendor-data:/var/www/html/vendor
-      - storage-data:/var/www/html/storage/app
+      - ./storage/app/public:/var/www/html/storage/app/public:rw
       - logs-data:/var/www/html/storage/logs
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - desaklayan-network
-    # 👇 TAMBAHKAN INI
-    command: >
-      sh -c "
-        php artisan storage:link &&
-        php-fpm
-      "
     healthcheck:
       test: ["CMD-SHELL", "pgrep php-fpm || exit 1"]
       interval: 10s
@@ -64,8 +58,6 @@ volumes:
   db-data:
     driver: local
   vendor-data:
-    driver: local
-  storage-data:
     driver: local
   logs-data:
     driver: local
