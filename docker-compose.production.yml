@@ -13,8 +13,8 @@ services:
     environment:
       - APP_ENV=production
     volumes:
-      - vendor-/var/www/html/vendor
-      - storage-/var/www/html/storage/app
+      - vendor-data:/var/www/html/vendor
+      - storage-data:/var/www/html/storage/app
       - logs-data:/var/www/html/storage/logs
     depends_on:
       mysql:
